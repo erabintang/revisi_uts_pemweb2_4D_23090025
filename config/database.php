@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
-
 return [
 
     /*
@@ -16,21 +14,44 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'pgsql'),
 
     /*
     |--------------------------------------------------------------------------
     | Database Connections
     |--------------------------------------------------------------------------
     |
-    | Below are all of the database connections defined for your application.
-    | An example configuration is provided for each database system which
-    | is supported by Laravel. You're free to add / remove connections.
+    | Proyek ini 100% memakai SUPABASE (PostgreSQL). Semua koneksi lain
+    | (sqlite, mysql, mariadb, sqlsrv) DIKOMENTARI — hanya 'pgsql' yang
+    | aktif. Koneksi sqlite in-memory untuk test otomatis didefinisikan
+    | terpisah di tests/TestCase.php dan tidak pernah menyentuh data
+    | Supabase.
     |
     */
 
     'connections' => [
 
+        'pgsql' => [
+            'driver' => 'pgsql',
+            'url' => env('DB_URL'),
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '5432'),
+            'database' => env('DB_DATABASE', 'laravel'),
+            'username' => env('DB_USERNAME', 'root'),
+            'password' => env('DB_PASSWORD', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => env('DB_SCHEMA', 'public'),
+            'sslmode' => env('DB_SSLMODE', 'require'),
+        ],
+
+        // ─────────────────────────────────────────────────────────
+        // ✖ DIKOMENTARI — proyek hanya memakai Supabase (pgsql).
+        //   Kembalikan blok di bawah jika suatu saat butuh driver lain.
+        // ─────────────────────────────────────────────────────────
+
+        /*
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
@@ -82,21 +103,6 @@ return [
             ]) : [],
         ],
 
-        'pgsql' => [
-            'driver' => 'pgsql',
-            'url' => env('DB_URL'),
-            'host' => env('DB_HOST', '127.0.0.1'),
-            'port' => env('DB_PORT', '5432'),
-            'database' => env('DB_DATABASE', 'laravel'),
-            'username' => env('DB_USERNAME', 'root'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset' => env('DB_CHARSET', 'utf8'),
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'search_path' => 'public',
-            'sslmode' => 'prefer',
-        ],
-
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DB_URL'),
@@ -111,6 +117,7 @@ return [
             // 'encrypt' => env('DB_ENCRYPT', 'yes'),
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
+        */
 
     ],
 
@@ -135,19 +142,19 @@ return [
     | Redis Databases
     |--------------------------------------------------------------------------
     |
-    | Redis is an open source, fast, and advanced key-value store that also
-    | provides a richer body of commands than a typical key-value system
-    | such as Memcached. You may define your connection settings here.
+    | ✖ DIKOMENTARI — proyek tidak memakai Redis (CACHE_STORE=array,
+    |   QUEUE_CONNECTION=sync). Aktifkan kembali jika suatu saat perlu.
     |
     */
 
+    /*
     'redis' => [
 
         'client' => env('REDIS_CLIENT', 'phpredis'),
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', 'laravel_database_'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 
@@ -170,5 +177,6 @@ return [
         ],
 
     ],
+    */
 
 ];

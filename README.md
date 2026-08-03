@@ -28,24 +28,37 @@ Aplikasi toko online (e-commerce) sederhana berbasis **Laravel 12 + Livewire + F
 # 1. Install dependency PHP
 composer install
 
-# 2. Siapkan .env (default MySQL)
+# 2. Siapkan .env (SUPABASE-ONLY)
 cp .env.example .env
 php artisan key:generate
 
-# 3. Buat database MySQL (nama: mangkrak_uts)
-mysql -u root -e "CREATE DATABASE mangkrak_uts CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+# 3. Buat tabel di Supabase (opsional, jika belum ada):
+#    Buka dashboard Supabase → SQL Editor → paste isi database/supabase-schema.sql → RUN
 
-# 4. Migrasi + seed data demo
+# 4. Isi kredensial Supabase di .env — PENTING:
+#    Project Settings → Database → Connection string (bagian POOLER)
+#    - DB_HOST = <region>.pooler.supabase.com (mis. aws-1-ap-northeast-2.pooler.supabase.com)
+#    - DB_USERNAME = postgres.<REF_PROJECT>
+#    - DB_PASSWORD = PASSWORD DATABASE (BUKAN publishable key!)
+#    - DB_PORT = 6543
+
+# 5. Migrasi & seed (dijalankan juga otomatis saat deploy Vercel)
 php artisan migrate --force
 php artisan db:seed --force
 
-# 5. Install & build aset frontend
+# 6. Install & build aset frontend
 npm install
 npm run build
 
-# 6. Jalankan server
+# 7. Jalankan server
 php artisan serve
 ```
+
+> ⚠️ **Proyek ini 100% memakai Supabase (PostgreSQL)** — tidak ada database lain.
+> `PUBLIC_SUPABASE_URL` & `PUBLIC_SUPABASE_PUBLISHABLE_KEY` dipakai untuk klien
+> Supabase (JS/HTTP). Untuk koneksi Laravel → database, wajib `DB_PASSWORD`
+> (password database dari dashboard), **bukan** publishable key.
+> File **`database/supabase-schema.sql`** berisi SQL lengkap untuk membuat semua tabel.
 
 ## ▲ Deploy ke Vercel
 
@@ -77,10 +90,13 @@ vercel
    - `SESSION_DRIVER` → `cookie` (Vercel filesystem read-only, jangan pakai `database`)
    - `CACHE_STORE` → `array`
    - `QUEUE_CONNECTION` → `sync`
-   - `DB_CONNECTION` → `mysql` + `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` dari database gratis (Aiven/PlanetScale/Railway)
+   - `DB_CONNECTION` → `pgsql` + `DB_HOST` (pooler, mis. `aws-1-ap-northeast-2.pooler.supabase.com`), `DB_PORT=5432`, `DB_DATABASE=postgres`, `DB_USERNAME=postgres.<REF>`, `DB_PASSWORD` (password database Supabase), `DB_SSLMODE=require`
+   - `PUBLIC_SUPABASE_URL` & `PUBLIC_SUPABASE_PUBLISHABLE_KEY` (opsional, untuk klien JS)
 5. Deploy 🎉
 
-> ⚠️ **Penting**: Vercel punya filesystem read-only, jadi wajib pakai **MySQL/Postgres** (bukan SQLite) agar login/CRUD tersimpan. Set `SESSION_DRIVER=cookie` dan `LOG_CHANNEL=stderr`.
+> ⚠️ **Penting**: Vercel punya filesystem read-only, jadi wajib pakai **Supabase (PostgreSQL)** agar login/CRUD tersimpan. Set `SESSION_DRIVER=cookie` dan `LOG_CHANNEL=stderr`.
+
+> 🔧 **Catatan teknis**: `bootstrap/app.php` memanggil `dontMergeFrameworkConfiguration()` agar Laravel 12 tidak menyuntikkan koneksi DB default (sqlite/mysql/dll) ke config — sehingga hanya `pgsql` (Supabase) yang aktif. Karena itu seluruh file `config/*.php` (termasuk `view.php`, `broadcasting.php`, `concurrency.php`, `cors.php`, `hashing.php`) wajib ikut ter-commit. Saat upgrade Laravel, publikasikan ulang config framework yang baru: `php artisan config:publish` lalu sesuaikan.
 
 ### Struktur deploy
 
