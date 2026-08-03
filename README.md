@@ -28,12 +28,12 @@ Aplikasi toko online (e-commerce) sederhana berbasis **Laravel 12 + Livewire + F
 # 1. Install dependency PHP
 composer install
 
-# 2. Siapkan .env (default SQLite)
+# 2. Siapkan .env (default MySQL)
 cp .env.example .env
 php artisan key:generate
 
-# 3. Buat database SQLite
-touch database/database.sqlite
+# 3. Buat database MySQL (nama: mangkrak_uts)
+mysql -u root -e "CREATE DATABASE mangkrak_uts CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
 
 # 4. Migrasi + seed data demo
 php artisan migrate --force
@@ -80,7 +80,7 @@ vercel
    - `DB_CONNECTION` → `mysql` + `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` dari database gratis (Aiven/PlanetScale/Railway)
 5. Deploy 🎉
 
-> ⚠️ **Penting**: Vercel punya filesystem read-only, jadi **SQLite tidak bisa menulis** (login/session tidak tersimpan). Untuk produksi wajib pakai **MySQL/Postgres** gratis dan set `SESSION_DRIVER=cookie`.
+> ⚠️ **Penting**: Vercel punya filesystem read-only, jadi wajib pakai **MySQL/Postgres** (bukan SQLite) agar login/CRUD tersimpan. Set `SESSION_DRIVER=cookie` dan `LOG_CHANNEL=stderr`.
 
 ### Struktur deploy
 

@@ -1,26 +1,30 @@
 # Run Doc — revisi_uts_pemweb2_4D_23090025 (mangkrak.io)
 
-Laravel 12 + Livewire/Volt preview server.
+Laravel 12 + Livewire/Volt preview server (MySQL).
 
 ## Reproduce the artifacts
 
 This thread's workspace IS the main checkout (no separate worktree), so no env files
-need copying — `.env`, `database/database.sqlite`, `vendor/`, and `node_modules/`
-already exist locally. If starting from a fresh checkout, reproduce them with:
+need copying — `.env`, `vendor/`, and `node_modules/` already exist locally.
+If starting from a fresh checkout, reproduce them with:
 
 ```bash
 cp .env.example .env
-touch database/database.sqlite
 php artisan key:generate
-php artisan migrate --force
-php artisan db:seed --force
 composer install
 npm install
 npm run build
 ```
 
-Note: `.env` uses SQLite (`DB_CONNECTION=sqlite`). If `DB_DATABASE` is unset, Laravel
-defaults to `database/database.sqlite` automatically.
+Database is **MySQL** (`.env` uses `DB_CONNECTION=mysql`, DB `mangkrak_uts`,
+host `127.0.0.1:3306`, user `root` / empty password — XAMPP default).
+If MySQL is unavailable, switch to SQLite in `.env` and `touch database/database.sqlite`.
+
+```bash
+mysql -u root -e "CREATE DATABASE IF NOT EXISTS mangkrak_uts CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+php artisan migrate --force
+php artisan db:seed --force
+```
 
 ## Run the server
 
