@@ -62,6 +62,7 @@
         ],
         "vercel": [
             "@php -r \"if (!getenv('APP_KEY')) { file_put_contents('.env', 'APP_ENV=production'.PHP_EOL.'APP_DEBUG=false'.PHP_EOL.'APP_KEY='.base64_encode(random_bytes(32)).PHP_EOL.'SESSION_DRIVER=cookie'.PHP_EOL.'CACHE_STORE=array'.PHP_EOL.'QUEUE_CONNECTION=sync'.PHP_EOL.'LOG_CHANNEL=stderr'.PHP_EOL); echo 'Generated .env with APP_KEY'.PHP_EOL; }\"",
+            "composer install --no-interaction --prefer-dist --optimize-autoloader",
             "@php -r \"if (!getenv('DB_PASSWORD')) { echo 'WARNING: DB_PASSWORD kosong - set Environment Variables DB_* (Supabase: host/port/database/username/password) di dashboard Vercel agar CRUD & login tersimpan.'.PHP_EOL; }\"",
             "@php artisan migrate --force || true",
             "@php artisan db:seed --force || true",

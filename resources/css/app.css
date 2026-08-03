@@ -1,5 +1,6 @@
 @import 'tailwindcss';
-@import '../../vendor/livewire/flux/dist/flux.css';
+/* flux.css disalin ke sini agar vite build tidak butuh folder vendor/ (penting untuk Vercel) */
+@import './flux.css';
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
