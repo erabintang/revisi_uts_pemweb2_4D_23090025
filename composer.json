@@ -62,8 +62,10 @@
             "@php artisan test"
         ],
         "vercel": [
-            "@php artisan migrate --force",
-            "@php artisan db:seed --force",
+            "@php -r \"if ((getenv('DB_CONNECTION') ?: 'sqlite') === 'sqlite' && !file_exists('database/database.sqlite')) { file_put_contents('database/database.sqlite', ''); echo 'SQLite database created'.PHP_EOL; }\"",
+            "@php -r \"if (!getenv('APP_KEY')) { file_put_contents('.env', 'APP_ENV=production'.PHP_EOL.'APP_DEBUG=false'.PHP_EOL.'APP_KEY='.base64_encode(random_bytes(32)).PHP_EOL.'SESSION_DRIVER=cookie'.PHP_EOL.'CACHE_STORE=array'.PHP_EOL.'QUEUE_CONNECTION=sync'.PHP_EOL.'LOG_CHANNEL=stderr'.PHP_EOL); echo 'Generated .env with APP_KEY'.PHP_EOL; }\"",
+            "@php artisan migrate --force || true",
+            "@php artisan db:seed --force || true",
             "@php artisan view:cache",
             "@php artisan route:cache",
             "npm install --no-audit --no-fund",
