@@ -19,8 +19,9 @@ class HomepageController extends Controller
     public function products()
     {
         $categories = Categories::all();
+        $products = \App\Models\Product::with('category')->get();
         $title = "Products";
-        return view('components.web.products', ['title' => $title, 'categories' => $categories]);
+        return view('components.web.products', ['title' => $title, 'categories' => $categories, 'products' => $products]);
     }
     //fungsi untuk menampilkan halaman single product
     public function single_product($slug)

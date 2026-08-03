@@ -133,9 +133,4 @@ class ProductController extends Controller
             ->with('successMessage', 'Data Berhasil Dihapus');
     }
 
-    public function showProducts()
-    {
-        $products = Product::all(); // Mengambil semua data produk
-        return view('web.products', compact('products'));
-    }
 }
