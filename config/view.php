@@ -1,5 +1,24 @@
 <?php
 
+// ─────────────────────────────────────────────────────────────────────
+// COMPILED VIEW PATH — HARDENING UNTUK VERCEL (filesystem read-only)
+//
+// Di Vercel (serverless function), storage/framework/views TIDAK writable.
+// Jika folder compiled default tidak bisa ditulis, otomatis pindah ke
+// folder temp sistem (sys_get_temp_dir() → /tmp) yang selalu writable.
+// Ini membuat app TIDAK bergantung pada env var VIEW_COMPILED_PATH lagi.
+// ─────────────────────────────────────────────────────────────────────
+
+$compiledViewPath = env('VIEW_COMPILED_PATH', realpath(storage_path('framework/views')));
+
+if ($compiledViewPath === false || ! is_writable($compiledViewPath)) {
+    $compiledViewPath = sys_get_temp_dir().'/mangkrak-compiled-views';
+
+    if (! is_dir($compiledViewPath)) {
+        @mkdir($compiledViewPath, 0777, true);
+    }
+}
+
 return [
 
     /*
@@ -28,9 +47,6 @@ return [
     |
     */
 
-    'compiled' => env(
-        'VIEW_COMPILED_PATH',
-        realpath(storage_path('framework/views'))
-    ),
+    'compiled' => $compiledViewPath,
 
 ];

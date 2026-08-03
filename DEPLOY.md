@@ -47,6 +47,9 @@ git push origin main
      - Ini yang menjalankan pipeline lengkap: `composer install` → `migrate`/`seed` → `view:cache` → `route:cache` → `npm install` → `vite build`.
      - ⚠️ Kalau dikosongkan, Vercel hanya menjalankan `npm run build` — dan gagal karena `vendor/` belum ada saat vite build.
      - 💡 Kalau muncul error `composer: command not found` saat build, biarkan Build Command kosong — vite build tetap sukses karena `flux.css` sudah disalin ke `resources/css/flux.css` (tidak butuh `vendor/`).
+   - **Output Directory** → **KOSONGKAN** (hapus nilai `dist`)
+     - ⚠️ Vercel otomatis mendeteksi proyek sebagai **Vite** (karena ada `vite.config.js`) dan mengisi Output Directory = `dist`. Padahal output aplikasi ini adalah **fungsi PHP**, bukan folder `dist`. Kalau tidak dikosongkan, deploy gagal: `No Output Directory named "dist" found`.
+     - Untuk proyek yang sudah dibuat: **Settings → General → Build & Development Settings → Output Directory** → hapus `dist` → **Save**
    - **Install Command** → default
 
 ---
@@ -68,6 +71,7 @@ Klik **Environment Variables** dan isi satu per satu (nilai **asli** boleh di si
 | `QUEUE_CONNECTION` | `sync` |
 | `LOG_CHANNEL` | `stderr` |
 | `LOG_LEVEL` | `warning` |
+| `VIEW_COMPILED_PATH` | `/tmp/storage/framework/views` (⚠️ wajib — Vercel read-only, compiled view diarahkan ke /tmp yang writable) |
 | `DB_CONNECTION` | `pgsql` |
 | `DB_HOST` | `aws-1-ap-northeast-2.pooler.supabase.com` |
 | `DB_PORT` | `5432` |
@@ -128,9 +132,11 @@ Cukup `git add -A && git commit && git push origin main` → Vercel otomatis red
 | Build gagal di "Installing dependencies" | Pastikan `composer.json` valid dan `composer.lock` ikut ter-commit |
 | Build gagal `Can't resolve '../../vendor/livewire/flux/dist/flux.css'` | `vendor/` belum ada saat vite build. Sudah diperbaiki: flux.css disalin ke `resources/css/flux.css` (commit wajib) + set Build Command `composer run vercel` |
 | Build gagal `composer: command not found` | Build Command tidak bisa pakai composer. Biarkan Build Command kosong — vite build tetap sukses karena flux.css sudah ter-commit |
+| Build sukses tapi `No Output Directory named "dist" found` | Vercel mendeteksi proyek sebagai Vite dan mencari folder `dist`. Perbaiki di **Settings → General**: Framework Preset = **Other** dan **Output Directory dikosongkan** → Save → Redeploy |
 | Halaman error **500 "could not find driver"** | `pdo_pgsql` TIDAK perlu diinstall — sudah ada di `vercel-php@0.9.0`. Cek ulang versi runtime di `vercel.json` (`vercel-php@0.9.0`) |
 | Halaman error **500 "view.compiled kosong"** | `config/view.php` tidak ter-commit — pastikan semua file `config/*.php` ikut git |
 | Login/CRUD tidak tersimpan | `DB_PASSWORD` salah/kosong, atau **Connection pooling** belum diaktifkan di Supabase (Project Settings → Database → Connection pooling) |
+| Halaman 500 `tempnam(): file created in the system's temporary directory` (BladeCompiler → Filesystem::replace) | Filesystem Vercel read-only. **Sudah otomatis ditangani** `config/view.php` (fallback ke `/tmp` jika `storage/framework/views` tidak writable). `VIEW_COMPILED_PATH=/tmp/storage/framework/views` opsional sebagai penguat. **Penting:** error ini juga bisa jadi *double-fault* — error asli (mis. `UnexpectedValueException`) disembunyikan oleh renderer error page yang ikut crash. Cek Vercel → Logs untuk exception pertama |
 | `FATAL: tenant or user not found` | Region pooler salah atau pooling nonaktif. Host yang benar untuk proyek ini: `aws-1-ap-northeast-2.pooler.supabase.com` |
 | Session login hilang setelah redeploy | `APP_KEY` tidak konsisten — set `APP_KEY` permanen di Environment Variables Vercel (jangan biarkan di-generate otomatis tiap build) |
 
